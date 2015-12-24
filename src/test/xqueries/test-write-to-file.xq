@@ -25,8 +25,8 @@ try {
     if ($result)
     then
       (: Next, let's try parsing a collection of MARCXML records; to do this, we need to pass in the record elements :)
-      let $record := fetch:xml('src/test/resources/collection.marc.xml')//marcxml:record
-      let $result := marc:write($record//marcxml:record, file:temp-dir() || '/collection-' || local:get-timestamp() || '.mrc')
+      let $records := fetch:xml('src/test/resources/collection.marc.xml')//marcxml:record
+      let $result := marc:write($records//marcxml:record, file:temp-dir() || '/collection-' || local:get-timestamp() || '.mrc')
       return $result
     else false()
   return

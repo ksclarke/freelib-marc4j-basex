@@ -2,6 +2,8 @@
 
 This is an extension for [BaseX](http://basex.org/) (a native XML database) that allows the reading and writing of MARC records into and out from the database. The product of the project's build is an XAR file which can be used to install the freelib-marc4j-basex code into a BaseX database.  You can either build the project yourself or install a previously built XAR file from the project's GitHub [releases](https://github.com/ksclarke/freelib-marc4j-basex/releases) page.
 
+It is still in initial development and not yet ready for use.
+
 ## Getting Started
 
 Once you have installed the project's XAR file in your BaseX database, you should be able to run some simple XQueries that will read in MARC as MARCXML.  For instance:
@@ -113,7 +115,7 @@ If you want to write out more than one record (which you probably will), you'll 
     let $records := fetch:xml('src/test/resources/record.marc.xml')//marcxml:record
     
     (: Then write them out as MARC records :)
-    return marc:write($records, '/path/to/marc-record.mrc')
+    return marc:write($records//marcxml:record, '/path/to/marc-record.mrc')
 
 If you are interested in seeing some more examples, take a look at the tests in the [src/test/xqueries](https://github.com/ksclarke/freelib-marc4j-basex/tree/master/src/test/xqueries) folder.  There are multiple tests (i.e., examples) in each XQuery file.
 

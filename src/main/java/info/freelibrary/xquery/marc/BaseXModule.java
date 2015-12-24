@@ -59,6 +59,11 @@ public class BaseXModule extends QueryModule implements QueryResource {
     public boolean write(final Value aRecSeq, final String aFilePath) throws QueryException {
         MarcWriter writer = null;
 
+        // FIXME: why do both need to reference marcxml:record?
+        //
+        // let $records := fetch:xml('src/test/resources/record.marc.xml')//marcxml:record
+        // return marc:write($records//marcxml:record, '/path/to/marc-record.mrc')
+
         try {
             final Iterator<Item> iterator = aRecSeq.iterator();
             final RecordStack recordStack = new RecordStack();
