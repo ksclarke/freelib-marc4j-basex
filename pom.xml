@@ -1,0 +1,376 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>freelib-marc4j-basex</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>FreeLib-MARC4J BaseX Module</name>
+  <description>A MARC extension for the BaseX database</description>
+  <url>https://github.com/ksclarke/freelib-marc4j-basex</url>
+
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License, Version 2.1</name>
+      <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+      <comments>Licensed under the GNU LGPL 2.1 or later (at your option)</comments>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:ksclarke/freelib-marc4j-basex.git</connection>
+    <developerConnection>scm:git:git@github.com:ksclarke/freelib-marc4j-basex.git</developerConnection>
+    <url>git@github.com:ksclarke/freelib-marc4j-basex.git</url>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/ksclarke/freelib-marc4j-basex/issues</url>
+  </issueManagement>
+
+  <developers>
+    <developer>
+      <email>ksclarke@ksclarke.io</email>
+      <name>Kevin S. Clarke</name>
+      <url>http://kevinclarke.info</url>
+      <roles>
+        <role>Developer</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+    </developer>
+  </developers>
+
+  <properties>
+    <basex.version>8.3.1</basex.version>
+
+    <freelib.utils.version>0.5.0</freelib.utils.version>
+    <freelib.marc4j.version>2.6.8</freelib.marc4j.version>
+
+    <sl4j.log4j.version>1.7.10</sl4j.log4j.version>
+    <maven.jar.plugin.version>2.5</maven.jar.plugin.version>
+    <maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
+    <maven.assembly.plugin.version>2.5.3</maven.assembly.plugin.version>
+    <copy.rename.maven.plugin.version>1.0</copy.rename.maven.plugin.version>
+
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.basex</groupId>
+      <artifactId>basex</artifactId>
+      <version>${basex.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>info.freelibrary</groupId>
+      <artifactId>freelib-marc4j</artifactId>
+      <version>${freelib.marc4j.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>${project.build.directory}/xar</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+      <!-- We have Bash tests so don't want to disable all tests, just Surefire's Java-based test -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>true</skipTests>
+        </configuration>
+      </plugin>
+      <!-- Copy our dependencies into the space from which we build our XAR deployment file -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>info.freelibrary</groupId>
+                  <artifactId>freelib-marc4j</artifactId>
+                  <version>${freelib.marc4j.version}</version>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}/xar/freelib-marc</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>info.freelibrary</groupId>
+                  <artifactId>freelib-utils</artifactId>
+                  <version>${freelib.utils.version}</version>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}/xar/freelib-marc</outputDirectory>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.basex</groupId>
+                  <artifactId>basex</artifactId>
+                  <version>${basex.version}</version>
+                  <type>jar</type>
+                  <overWrite>false</overWrite>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- This plugin creates the XAR file, comes before copy-rename-maven-plugin -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>${maven.assembly.plugin.version}</version>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/xar.xml</descriptor>
+          </descriptors>
+          <finalName>${project.artifactId}-${project.version}.xar</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <!-- Don't attach artifact because we want to change its extension -->
+          <attach>false</attach>
+        </configuration>
+        <executions>
+          <execution>
+            <id>assemble-xar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>${maven.jar.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>build-code-jar</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>prepare-package</phase>
+            <configuration>
+              <classesDirectory>target/classes</classesDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Copy our build artifact JAR file into the space from which we build our XAR deployment file -->
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>${copy.rename.maven.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>copy-file</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}.jar</sourceFile>
+              <destinationFile>${project.build.directory}/xar/freelib-marc/${project.artifactId}-${project.version}.jar</destinationFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>rename-to-xar</id>
+            <phase>package</phase>
+            <goals>
+              <goal>rename</goal>
+            </goals>
+            <configuration>
+              <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}.xar.zip</sourceFile>
+              <destinationFile>${project.build.directory}/${project.artifactId}-${project.version}.xar</destinationFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-install</id>
+            <phase>install</phase>
+            <goals>
+              <goal>install</goal>
+            </goals>
+            <configuration>
+              <!-- Skip the installation of the JAR file -->
+              <skip>true</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>install</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <!-- Instead install our XAR file -->
+              <packaging>xar</packaging>
+              <pomFile>pom.xml</pomFile>
+              <repositoryId>sonatype-nexus-snapshots</repositoryId>
+              <url>https://oss.sonatype.org/service/local/repositories/snapshots/content</url>
+              <artifactId>${project.artifactId}</artifactId>
+              <groupId>${project.groupId}</groupId>
+              <version>${project.version}</version>
+              <file>${project.build.directory}/${project.artifactId}-${project.version}.xar</file>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>${maven.deploy.plugin.version}</version>
+        <executions>
+          <execution>
+            <id>default-deploy</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>deploy</goal>
+            </goals>
+            <configuration>
+              <!-- Skip deployment of the JAR file -->
+              <skip>true</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>deploy</phase>
+            <goals>
+              <goal>deploy-file</goal>
+            </goals>
+            <configuration>
+              <!-- Deploy the XAR file instead -->
+              <packaging>xar</packaging>
+              <generatePom>false</generatePom>
+              <repositoryId>sonatype-nexus-snapshots</repositoryId>
+              <url>https://oss.sonatype.org/service/local/repositories/snapshots/content</url>
+              <artifactId>${project.artifactId}</artifactId>
+              <groupId>${project.groupId}</groupId>
+              <version>${project.version}</version>
+              <file>${project.build.directory}/${project.artifactId}-${project.version}.xar</file>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>load-xar</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-Dorg.basex.path=${project.build.directory}</argument>
+                <argument>-cp</argument>
+                <argument>${project.build.directory}/basex-${basex.version}.jar</argument>
+                <argument>org.basex.BaseX</argument>
+                <argument>-v</argument>
+                <argument><![CDATA[-cREPO INSTALL file://${project.build.directory}/freelib-marc4j-basex-${project.version}.xar]]></argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-read</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-Dorg.basex.path=${project.build.directory}</argument>
+                <argument>-cp</argument>
+                <argument>${project.build.directory}/basex-${basex.version}.jar</argument>
+                <argument>org.basex.BaseX</argument>
+                <argument>src/test/xqueries/test-read-from-file.xq</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>test-write</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-Dorg.basex.path=${project.build.directory}</argument>
+                <argument>-cp</argument>
+                <argument>${project.build.directory}/basex-${basex.version}.jar</argument>
+                <argument>org.basex.BaseX</argument>
+                <argument>src/test/xqueries/test-write-to-file.xq</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Plugin to generate JavaDocs -->
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <!-- Plugin to run Sonar analysis -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+      </plugin>
+      <!-- Checks project's code for conformance to coding standards -->
+      <plugin>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <!-- Plugin to enforce some rules about the project -->
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+      </plugin>
+      <!-- Plugin to generate the project's website -->
+      <plugin>
+        <groupId>br.com.ingenieux</groupId>
+        <artifactId>jbake-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Enables pushing project documentation up to an S3 bucket -->
+  <distributionManagement>
+    <site>
+      <id>s3.site</id>
+      <url>s3://projects.freelibrary.info/freelib-marc4j-basex</url>
+    </site>
+  </distributionManagement>
+
+  <!-- Pulls in standard FreeLibrary Project configuration options -->
+  <parent>
+    <groupId>info.freelibrary</groupId>
+    <artifactId>freelib-parent</artifactId>
+    <version>0.1.0</version>
+  </parent>
+
+  <repositories>
+    <!-- Can't check this into Maven Central as long as we have external repositories -->
+    <repository>
+      <id>basex</id>
+      <url>http://files.basex.org/maven</url>
+    </repository>
+  </repositories>
+
+</project>
