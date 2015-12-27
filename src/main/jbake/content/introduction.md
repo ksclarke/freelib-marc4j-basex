@@ -8,7 +8,7 @@ Once you have installed the project's XAR file in your BaseX database, you shoul
 
     xquery version "3.0";
     
-    import module namespace marc="http://freelibrary.info/xquery/marc";
+    import module namespace marc = "http://freelibrary.info/xquery/marc";
     
     (: Read the MARC records into memory as MARCXML records :)
     let $marc := marc:read('/path/to/marc-records.mrc')
@@ -20,9 +20,9 @@ Once you have installed the project's XAR file in your BaseX database, you shoul
 
     xquery version "3.0";
     
-    declare namespace marcxml="http://www.loc.gov/MARC21/slim";
+    declare namespace marcxml = "http://www.loc.gov/MARC21/slim";
     
-    import module namespace marc="http://freelibrary.info/xquery/marc";
+    import module namespace marc = "http://freelibrary.info/xquery/marc";
     
     (: Read the MARC records into the 'marc-records' collection as MARCXML records :)
     let $result := marc:store('/path/to/marc-records.mrc', '/db/marc-records')
@@ -35,7 +35,7 @@ Once you have installed the project's XAR file in your BaseX database, you shoul
 
     xquery version "3.0";
     
-    import module namespace marc="http://freelibrary.info/xquery/marc";
+    import module namespace marc = "http://freelibrary.info/xquery/marc";
     
     let $record :=
       <record xmlns="http://www.loc.gov/MARC21/slim">
@@ -104,15 +104,15 @@ Once you have installed the project's XAR file in your BaseX database, you shoul
 
     xquery version "3.0";
     
-    declare namespace marcxml="http://www.loc.gov/MARC21/slim";
+    declare namespace marcxml = "http://www.loc.gov/MARC21/slim";
     
-    import module namespace marc="http://freelibrary.info/xquery/marc";
+    import module namespace marc = "http://freelibrary.info/xquery/marc";
     import module namespace fetch = "http://basex.org/modules/fetch";
     
     (: First, read in some MARCXML records from the file system :)
     let $records := fetch:xml('src/test/resources/record.marc.xml')//marcxml:record
     
     (: Then write them out as MARC records :)
-    return marc:write($records//marcxml:record, '/path/to/marc-record.mrc')
+    return marc:write($records, '/path/to/marc-record.mrc')
 
 <br/>If you are interested in seeing some more examples, take a look at the tests in the [src/test/xqueries](https://github.com/ksclarke/freelib-marc4j-basex/tree/master/src/test/xqueries) folder.  There are multiple tests (i.e., examples) in each XQuery file.

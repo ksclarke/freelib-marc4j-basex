@@ -29,7 +29,7 @@ The project is a Java project and is built using Maven.  You will need a [JDK](h
 
 You can install the freelib-marc4j-basex XAR file from the command line.
 
-    java -cp basex-8.3.1.jar org.basex.BaseX -cREPO INSTALL file:///path/to/freelib-marc4j-basex-0.0.1.xar
+    java -cp basex-8.3.1.jar org.basex.BaseX -cREPO INSTALL file:///path/to/freelib-marc4j-basex-<script>document.write($version);</script><noscript>${version}</noscript>.xar
 
 Now, you are ready to read and write some MARC records!
 
