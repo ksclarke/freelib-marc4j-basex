@@ -31,7 +31,7 @@ try {
     else false()
   return
     if ($result)
-    then '[SCRIPT] Successfully ran the tests that check the ability to write valid MARC'
+    then '[INFO] Successfully ran the tests that check the ability to write valid MARC'
     else '[ERROR] Failed to successfully complete the tests that check the ability to write valid MARC: Empty MARC sequence'
 } catch * {
   '[ERROR] Caught an exception where there should not have been one: '  || local:error($err:code, $err:description, $err:value) 
@@ -49,7 +49,7 @@ try {
     )
     else '[ERROR] Did not write invalid MARC, but also did not throw an exception like expected'
 } catch * {
-  '[SCRIPT] Successfully threw an exception: ' || local:error($err:code, $err:description, $err:value)
+  '[INFO] Successfully threw an exception: ' || local:error($err:code, $err:description, $err:value)
 },
 try {
   let $result := marc:write(<not-a-record/>, file:temp-dir() || '/not-record' || local:get-timestamp() || '.mrc')
@@ -58,6 +58,6 @@ try {
     then '[ERROR] Failed to throw an exception when trying to write an invalid MARC record'
     else '[ERROR] Did not write invalid MARC, but also did not throw an exception like expected'
 } catch * {
-  '[SCRIPT] Successfully threw an exception: ' || local:error($err:code, $err:description, $err:value) 
+  '[INFO] Successfully threw an exception: ' || local:error($err:code, $err:description, $err:value) 
 }
 )

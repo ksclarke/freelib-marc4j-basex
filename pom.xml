@@ -67,6 +67,12 @@
       <artifactId>freelib-marc4j</artifactId>
       <version>${freelib.marc4j.version}</version>
     </dependency>
+    <!-- Below here are our testing dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -85,6 +91,23 @@
         <configuration>
           <skipTests>true</skipTests>
         </configuration>
+      </plugin>
+      <!-- Plugin to run our integration tests -->
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <xar.file>file://${project.build.directory}/freelib-marc4j-basex-${project.version}.xar</xar.file>
+            <xar.version>${project.version}</xar.version>
+            <marc4j.version>${freelib.marc4j.version}</marc4j.version>
+            <utils.jar.version>${freelib.utils.version}</utils.jar.version>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <!-- Related to Maven Failsafe plugin -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
       </plugin>
       <!-- Copy our dependencies into the space from which we build our XAR deployment file -->
       <plugin>
@@ -263,64 +286,6 @@
               <groupId>${project.groupId}</groupId>
               <version>${project.version}</version>
               <file>${project.build.directory}/${project.artifactId}-${project.version}.xar</file>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>load-xar</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>java</executable>
-              <arguments>
-                <argument>-Dorg.basex.path=${project.build.directory}</argument>
-                <argument>-cp</argument>
-                <argument>${project.build.directory}/basex-${basex.version}.jar</argument>
-                <argument>org.basex.BaseX</argument>
-                <argument>-v</argument>
-                <argument><![CDATA[-cREPO INSTALL file://${project.build.directory}/freelib-marc4j-basex-${project.version}.xar]]></argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>test-read</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>java</executable>
-              <arguments>
-                <argument>-Dorg.basex.path=${project.build.directory}</argument>
-                <argument>-cp</argument>
-                <argument>${project.build.directory}/basex-${basex.version}.jar</argument>
-                <argument>org.basex.BaseX</argument>
-                <argument>src/test/xqueries/test-read-from-file.xq</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>test-write</id>
-            <phase>integration-test</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>java</executable>
-              <arguments>
-                <argument>-Dorg.basex.path=${project.build.directory}</argument>
-                <argument>-cp</argument>
-                <argument>${project.build.directory}/basex-${basex.version}.jar</argument>
-                <argument>org.basex.BaseX</argument>
-                <argument>src/test/xqueries/test-write-to-file.xq</argument>
-              </arguments>
             </configuration>
           </execution>
         </executions>
